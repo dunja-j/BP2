@@ -5,11 +5,19 @@ broju blok transfera.
 
 ## Pokretanje
 
-Potreban je Python 3.10 ili noviji. Iz root foldera projekta pokrenuti:
+Potreban je Python 3.10 ili noviji. Posle raspakivanja ZIP arhive, iz njenog
+root foldera instalirati projekat i dependency, pa ga pokrenuti:
 
 ```powershell
 python -m pip install -e .
 python -m sql_cost_estimator
+```
+
+Ako je Python na Windows-u dostupan preko `py` komande:
+
+```powershell
+py -m pip install -e .
+py -m sql_cost_estimator
 ```
 
 Program podrazumevano cita dva fajla iz root foldera:
@@ -48,7 +56,7 @@ sql_cost_estimator/  # izvorni kod i formalna JSON Schema
 schema.json          # ulazna sema i statistike
 query.sql            # SQL upit
 README.md            # uputstvo za pokretanje
-pyproject.toml       # instalacija i zavisnosti
+pyproject.toml       # podaci o Python projektu
 ```
 
 Folder `DOKUMENTACIJA_ZA_MENE_NE_PREDAVATI` sadrzi detaljna objasnjenja i
