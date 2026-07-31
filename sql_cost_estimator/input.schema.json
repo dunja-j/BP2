@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/sql-cost-estimator/input.schema.json",
+  "title": "SQL Cost Estimator Input",
+  "description": "Katalog i bafer u zvanicnom formatu; SQL upit se prosledjuje odvojeno.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["bufferBlocks", "schema"],
+  "properties": {
+    "bufferBlocks": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "schema": {
+      "$ref": "#/$defs/catalog"
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_$]*$"
+    },
+    "attribute": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type", "unique", "distinctValues"],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/identifier"
+        },
+        "type": {
+          "enum": ["STRING", "DOUBLE", "INT", "DATE"]
+        },
+        "unique": {
+          "type": "boolean"
+        },
+        "distinctValues": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "index": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "attributes", "type", "clustered"],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/identifier"
+        },
+        "attributes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/identifier"
+          }
+        },
+        "type": {
+          "enum": ["B_PLUS_TREE", "HASH"]
+        },
+        "clustered": {
+          "type": "boolean"
+        },
+        "treeHeight": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "B_PLUS_TREE"
+              }
+            }
+          },
+          "then": {
+            "required": ["treeHeight"]
+          },
+          "else": {
+            "not": {
+              "required": ["treeHeight"]
+            }
+          }
+        }
+      ]
+    },
+    "table": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "rowCount",
+        "blockCount",
+        "rowsPerBlock",
+        "attributes",
+        "indexes"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/identifier"
+        },
+        "rowCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "blockCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rowsPerBlock": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "attributes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/attribute"
+          }
+        },
+        "indexes": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/index"
+          }
+        }
+      }
+    },
+    "catalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tables"],
+      "properties": {
+        "tables": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/table"
+          }
+        }
+      }
+    }
+  }
+}
